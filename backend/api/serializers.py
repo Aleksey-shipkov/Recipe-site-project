@@ -93,7 +93,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
         if Subscriptions.objects.filter(
                 user=user, author=author).exists():
             raise serializers.ValidationError(
-                    'Уже подписаны на этого автора')
+                'Уже подписаны на этого автора')
         return data
 
     def to_representation(self, instance):
@@ -192,11 +192,11 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         if Recipes.objects.filter(
                 id=recipe_id, author=current_user).exists():
             raise serializers.ValidationError(
-                    'Нельзя добавлять собственные рецепты в список покупок.')
+                'Нельзя добавлять собственные рецепты в список покупок.')
         if ShoppingCart.objects.filter(
                 user=current_user, recipe=recipe).exists():
             raise serializers.ValidationError(
-                    'Вы уже добавили этот рецепт список покупок.')
+                'Вы уже добавили этот рецепт список покупок.')
         return data
 
     def to_representation(self, instance):
@@ -311,7 +311,7 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
                         recipe_id=instance.id, ingredient_id=ingredient['id'])
                     ingredient_instance.amount = ingredient.get(
                         'amount', ingredient_instance.amount
-                        )
+                    )
                     ingredient_instance.save()
                     ingredients_id_pool.append(ingredient_instance.id)
                 else:
@@ -364,11 +364,11 @@ class FavoriteSerializer(serializers.ModelSerializer):
         if Recipes.objects.filter(
                 id=recipe_id, author=current_user).exists():
             raise serializers.ValidationError(
-                    'Нельзя добавлять в избранное собственные рецепты.')
+                'Нельзя добавлять в избранное собственные рецепты.')
         if Favorite.objects.filter(
                 user=current_user, recipe=recipe).exists():
             raise serializers.ValidationError(
-                    'Вы уже добавили этот рецепт в избранное.')
+                'Вы уже добавили этот рецепт в избранное.')
         return data
 
     def to_representation(self, instance):

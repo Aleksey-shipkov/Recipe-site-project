@@ -5,17 +5,17 @@ class AdminOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return (
-                request.method in permissions.SAFE_METHODS or
-                request.user.is_superuser
-            )
+            request.method in (
+                permissions.SAFE_METHODS or request.user.is_superuser)
+        )
 
 
 class ReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return (
-                request.method in permissions.SAFE_METHODS
-            )
+            request.method in permissions.SAFE_METHODS
+        )
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):

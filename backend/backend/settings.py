@@ -104,7 +104,6 @@ DATABASES = {
 }
 
 
-
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -181,7 +180,7 @@ DJOSER = {
         "token_destroy": ["rest_framework.permissions.IsAuthenticated"],
     },
     'HIDE_USERS': False
- }
+}
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'

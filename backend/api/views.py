@@ -43,8 +43,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return RecipesSerializer
-        else:
-            return RecipesCreateSerializer
+        return RecipesCreateSerializer
 
     def get_queryset(self):
         queryset = Recipes.objects.all()
