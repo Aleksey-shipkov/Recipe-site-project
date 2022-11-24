@@ -41,7 +41,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = (
         'username', 'first_name', 'last_name'
-        )
+    )
 
     class Meta:
         ordering = ('id',)
@@ -87,7 +87,7 @@ class Recipes(models.Model):
     cooking_time = models.IntegerField(
         validators=[MinValueValidator(
             1, message='Время приготовления должно быть не менее 1')]
-        )
+    )
 
     class Meta:
         ordering = ('-pub_date',)
@@ -103,8 +103,8 @@ class IngredientsRecipe(models.Model):
         Ingredients, on_delete=models.CASCADE, related_name='in_recipe'
     )
     amount = models.IntegerField(validators=[
-            MinValueValidator(
-                1, message='Должен быть хотя бы один ингредиент!')]
+        MinValueValidator(
+            1, message='Должен быть хотя бы один ингредиент!')]
     )
 
     class Meta:
