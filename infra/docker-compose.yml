@@ -8,10 +8,10 @@ services:
       - ../backend/backend/.env
   
   web:
-    #image: foodgram_backend:latest
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: shipkov1234/infra-web:latest
+    #build:
+      #context: ../backend
+      #dockerfile: Dockerfile
     #image: shipkov1234/api_yamdb:latest
     restart: always
     volumes:
@@ -22,7 +22,7 @@ services:
     env_file:
       - ../backend/backend/.env
   frontend:
-    image: infra-frontend:latest
+    image: shipkov1234/infra-frontend:latest
 
   nginx:
     image: nginx:1.19.3
