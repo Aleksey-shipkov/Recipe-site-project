@@ -5,14 +5,13 @@ services:
     volumes:
       - foodgram_value:/var/lib/postgresql/data/
     env_file:
-      - ../backend/backend/.env
+      - ./.env
   
   web:
     image: shipkov1234/infra-web:latest
     #build:
       #context: ../backend
       #dockerfile: Dockerfile
-    #image: shipkov1234/api_yamdb:latest
     restart: always
     volumes:
       - static_value:/app/static/
@@ -20,7 +19,7 @@ services:
     depends_on:
       - db
     env_file:
-      - ../backend/backend/.env
+      - ./.env
   frontend:
     image: shipkov1234/infra-frontend:latest
 
@@ -33,9 +32,9 @@ services:
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
 
-      - static_value:/var/html/static/
+      - static_value:/var/html/staticfiles/
 
-      - media_value:/var/html/media/
+      - media_value:/var/html/mediafiles/
 
       - foodgram_value:/var/lib/postgresql/data/
     depends_on:

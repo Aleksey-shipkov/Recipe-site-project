@@ -51,9 +51,12 @@ class User(AbstractUser):
 
 # Create your models here.
 class Tag(models.Model):
-    name = models.CharField(max_length=200)
-    color = models.CharField(max_length=7)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=200, verbose_name='Название')
+    color = models.CharField(max_length=7, verbose_name='Цвет')
+    slug = models.SlugField(unique=True, verbose_name='Slug')
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         ordering = ('id',)
@@ -62,8 +65,12 @@ class Tag(models.Model):
 
 
 class Ingredients(models.Model):
-    name = models.CharField(max_length=200)
-    measurement_unit = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name='Название')
+    measurement_unit = models.CharField(max_length=200,
+                                        verbose_name='Ед. измерения')
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = 'Ингредиент'
@@ -71,23 +78,29 @@ class Ingredients(models.Model):
 
 
 class Recipes(models.Model):
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, verbose_name='Теги')
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='recipes'
+        User, on_delete=models.CASCADE, related_name='recipes',
+        verbose_name='Автор'
     )
     ingredients = models.ManyToManyField(
-        Ingredients, through='IngredientsRecipe'
+        Ingredients, through='IngredientsRecipe',
+        verbose_name='Ингредиенты'
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации', auto_now_add=True
     )
-    name = models.CharField(max_length=200)
-    image = models.ImageField()
-    text = models.TextField()
+    name = models.CharField(max_length=200, verbose_name='Название')
+    image = models.ImageField(verbose_name='Картинка')
+    text = models.TextField(verbose_name='Описание')
     cooking_time = models.IntegerField(
         validators=[MinValueValidator(
-            1, message='Время приготовления должно быть не менее 1')]
+            1, message='Время приготовления должно быть не менее 1')],
+        verbose_name='Время приготовления'
     )
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         ordering = ('-pub_date',)
@@ -97,14 +110,17 @@ class Recipes(models.Model):
 
 class IngredientsRecipe(models.Model):
     recipe = models.ForeignKey(
-        Recipes, on_delete=models.CASCADE, related_name='recipe'
+        Recipes, on_delete=models.CASCADE, related_name='recipe',
+        verbose_name='Рецепт'
     )
     ingredient = models.ForeignKey(
-        Ingredients, on_delete=models.CASCADE, related_name='in_recipe'
+        Ingredients, on_delete=models.CASCADE, related_name='in_recipe',
+        verbose_name='Ингредиент'
     )
     amount = models.IntegerField(validators=[
         MinValueValidator(
-            1, message='Должен быть хотя бы один ингредиент!')]
+            1, message='Должен быть хотя бы один ингредиент!')],
+        verbose_name='Кол-во'
     )
 
     class Meta:
@@ -113,6 +129,8 @@ class IngredientsRecipe(models.Model):
                 fields=('recipe', 'ingredient'),
                 name='recipe_ingredients_unique',
             )]
+        verbose_name = 'Ингредиент для рецепта'
+        verbose_name_plural = 'Ингредиенты для рецептов'
 
 
 class ShoppingCart(models.Model):
