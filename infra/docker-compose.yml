@@ -5,13 +5,13 @@ services:
     volumes:
       - foodgram_value:/var/lib/postgresql/data/
     env_file:
-      - ./.env
+      - ../backend/.env
   
   web:
-    image: shipkov1234/infra-web:latest
-    #build:
-      #context: ../backend
-      #dockerfile: Dockerfile
+    #image: shipkov1234/infra-web:latest
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
     restart: always
     volumes:
       - static_value:/app/static/
@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
     env_file:
-      - ./.env
+      - ../backend/.env
   frontend:
     image: shipkov1234/infra-frontend:latest
 
@@ -29,7 +29,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ../frontend/build:/usr/share/nginx/html/
+      - ../frontend/build/:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
 
       - static_value:/var/html/staticfiles/
