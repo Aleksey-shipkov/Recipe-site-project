@@ -11,10 +11,6 @@ class RecipesFilter(filters.FilterSet):
         field_name='tags__slug', to_field_name='slug',
         queryset=Tag.objects.all()
     )
-    #tags = filters.CharFilter(
-        #field_name='tags__slug',
-        #lookup_expr='contains'
-    #)
 
     class Meta:
         model = Recipes
