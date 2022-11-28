@@ -173,6 +173,8 @@ class ShoppingCart(models.Model):
                 name='unique_user_recipe_shopping_cart'
             )
         ]
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Список покупок'
 
     def __str__(self):
         return self.recipe
@@ -218,8 +220,8 @@ class Subscriptions(models.Model):
                 name='unique_user_author'
             )
         ]
-        verbose_name = 'Мои подписки'
-        verbose_name_plural = 'Мои подписки'
+        verbose_name = 'Подписки'
+        verbose_name_plural = 'Подписки'
 
     def __str__(self):
-        return self.author.name
+        return self.author.username
