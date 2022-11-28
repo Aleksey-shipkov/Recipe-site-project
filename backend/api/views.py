@@ -1,3 +1,16 @@
+from django.db.models import Sum
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+
+from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
+from rest_framework import filters, generics, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
+
 from api.filters import RecipesFilter
 from api.pagination import LimitPageNumberPagination
 from api.permissions import IsAuthorOrReadOnly
@@ -6,18 +19,9 @@ from api.serializers import (FavoriteSerializer, IngredientsRecipeSerializer,
                              RecipesSerializer, ShoppingCartSerializer,
                              SubscriptionsListSerializer,
                              SubscriptionsSerializer, TagSerializer)
-from django.db.models import Sum
-from django.http import HttpResponse
-from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
+from backend.settings import CONTENT_TYPE_TEXT, TEXT_FILE_NAME
 from food.models import (Favorite, Ingredients, IngredientsRecipe, Recipes,
                          ShoppingCart, Subscriptions, Tag, User)
-from rest_framework import filters, generics, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.generics import ListAPIView
-from rest_framework.permissions import (AllowAny, IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
-from rest_framework.response import Response
 
 
 class UserViewSet(UserViewSet):
@@ -25,7 +29,7 @@ class UserViewSet(UserViewSet):
     pagination_class = LimitPageNumberPagination
 
     @action(
-        detail=False, methods=['GET'], permission_classes=(IsAuthenticated,)
+        detail=False, methods=('GET',), permission_classes=(IsAuthenticated,)
     )
     def me(self, request):
         user = request.user
@@ -47,20 +51,18 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Recipes.objects.all()
-        favorited = self.request.query_params.get('is_favorited')
-        shopping_cart = self.request.query_params.get('is_in_shopping_cart')
-        if favorited == '1':
+        if self.request.query_params.get('is_favorited'):
             queryset = Recipes.objects.filter(
                 favorites__user=self.request.user
             )
-        if shopping_cart == '1':
+        if self.request.query_params.get('is_in_shopping_cart'):
             queryset = Recipes.objects.filter(
                 shopping_cart__user=self.request.user
             )
         return queryset
 
     @action(
-        detail=False, methods=['GET'], permission_classes=(IsAuthenticated,))
+        detail=False, methods=('GET',), permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request):
         shop_cart = IngredientsRecipe.objects.filter(
             recipe__shopping_cart__user=self.request.user.id
@@ -68,15 +70,14 @@ class RecipesViewSet(viewsets.ModelViewSet):
         shop_cart_sum = (
             shop_cart.values('ingredient').annotate(sum_ing=Sum('amount'))
         )
-        response = HttpResponse(content_type='text/plain; charset=UTF-8')
+        response = HttpResponse(content_type=CONTENT_TYPE_TEXT)
         response['Content-Disposition'] = (
-            'attachment; filename="shopping-cart.txt"'
-        )
+            f'attachment; filename={TEXT_FILE_NAME}')
 
         ing_list = []
 
         for ing, sum_ing in shop_cart_sum.values_list('ingredient', 'sum_ing'):
-            ingr = Ingredients.objects.get(id=ing)
+            ingr = get_object_or_404(Ingredients, id=ing)
             ing_list.append(
                 f'{ingr.name} ({ingr.measurement_unit}) - {sum_ing}\n'
             )
@@ -91,8 +92,7 @@ class SubscriptionsListView(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        new_queryset = User.objects.filter(following__user=user)
-        return new_queryset
+        return User.objects.filter(following__user=user)
 
 
 class SubscriptionsView(generics.CreateAPIView, generics.DestroyAPIView):
@@ -106,13 +106,14 @@ class SubscriptionsView(generics.CreateAPIView, generics.DestroyAPIView):
 
     def destroy(self, request, *args, **kwargs):
         author_id = self.kwargs['id']
-        author = User.objects.get(id=author_id)
+        author = get_object_or_404(User, id=author_id)
         user = self.request.user
-        if not Subscriptions.objects.filter(user=user, author=author).exists():
+        subs_list = Subscriptions.objects.filter(user=user, author=author)
+        if not subs_list.exists():
             return Response(
                 'Вы не подписывались на этого автора.',
                 status=status.HTTP_400_BAD_REQUEST)
-        Subscriptions.objects.filter(user=user, author=author).delete()
+        subs_list.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -147,13 +148,14 @@ class FavoriteView(generics.CreateAPIView, generics.DestroyAPIView):
 
     def destroy(self, request, *args, **kwargs):
         recipe_id = self.kwargs['id']
-        recipe = Recipes.objects.get(id=recipe_id)
+        recipe = get_object_or_404(Recipes, id=recipe_id)
         user = self.request.user
-        if not Favorite.objects.filter(user=user, recipe=recipe).exists():
+        favor_list = Favorite.objects.filter(user=user, recipe=recipe)
+        if not favor_list.exists():
             return Response(
                 'Рецепт отсутствует в избранном',
                 status=status.HTTP_400_BAD_REQUEST)
-        Favorite.objects.filter(user=user, recipe=recipe).delete()
+        favor_list.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -168,11 +170,12 @@ class ShoppingCartView(generics.CreateAPIView, generics.DestroyAPIView):
 
     def destroy(self, request, *args, **kwargs):
         recipe_id = self.kwargs['id']
-        recipe = Recipes.objects.get(id=recipe_id)
+        recipe = get_object_or_404(Recipes, id=recipe_id)
         user = self.request.user
-        if not ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+        shop_list = ShoppingCart.objects.filter(user=user, recipe=recipe)
+        if not shop_list.exists():
             return Response(
                 'Рецепт отсутствует в списке покупок',
                 status=status.HTTP_400_BAD_REQUEST)
-        ShoppingCart.objects.filter(user=user, recipe=recipe).delete()
+        shop_list.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -12,10 +12,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='favorite',
-            options={'verbose_name': 'Избранное', 'verbose_name_plural': 'Избранное'},
-        ),
         migrations.RemoveConstraint(
             model_name='subscriptions',
             name='unique_name_author',
@@ -34,10 +30,6 @@ class Migration(migrations.Migration):
             model_name='recipes',
             name='cooking_time',
             field=models.IntegerField(validators=[django.core.validators.MinValueValidator(1, message='Время приготовления должно быть не менее 1')]),
-        ),
-        migrations.AddConstraint(
-            model_name='favorite',
-            constraint=models.UniqueConstraint(fields=('user', 'recipe'), name='unique_user_recipe'),
         ),
         migrations.AddConstraint(
             model_name='subscriptions',

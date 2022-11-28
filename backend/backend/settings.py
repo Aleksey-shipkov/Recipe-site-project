@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import socket
 
 import environ
 
@@ -29,11 +30,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if socket.gethostname() == 'http://foodgram-site.hopto.org':
+    DEBUG = False
+else:
+    DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+CONTENT_TYPE_TEXT = 'text/plain; charset=UTF-8'
+TEXT_FILE_NAME = "shopping-cart.txt"
+MIN_VALUE = 1
 
 # Application definition
 

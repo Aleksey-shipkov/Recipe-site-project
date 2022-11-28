@@ -121,14 +121,6 @@ class Migration(migrations.Migration):
             name='recipe',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='food.Recipes'),
         ),
-        migrations.CreateModel(
-            name='Favorite',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('recipe', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='food.Recipes')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-            ],
-        ),
         migrations.AddConstraint(
             model_name='subscriptions',
             constraint=models.UniqueConstraint(fields=('user', 'author'), name='unique_name_author'),

@@ -22,6 +22,8 @@ services:
       - ../backend/.env
   frontend:
     image: shipkov1234/infra-frontend:latest
+    volumes:
+      - ../frontend/:/app/result_build/
 
   nginx:
     image: nginx:1.19.3

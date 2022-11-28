@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from food.models import Ingredients, IngredientsRecipe, Recipes, Tag, User
+
+from food.models import (Favorite, Ingredients, IngredientsRecipe, Recipes,
+                         ShoppingCart, Subscriptions, Tag, User)
 
 
 class UserCustomAdmin(UserAdmin):
@@ -10,6 +12,18 @@ class UserCustomAdmin(UserAdmin):
 
 class SubscriptionsAdmin(admin.ModelAdmin):
     list_display = ('user', 'author')
+
+
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('user', 'recipe')
+
+
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = ('user', 'recipe')
+
+
+class IngredientsRecipeAdmin(admin.ModelAdmin):
+    list_display = ('ingredient', 'recipe', 'amount')
 
 
 class IngRecipesInline(admin.TabularInline):
@@ -43,3 +57,7 @@ admin.site.register(User, UserCustomAdmin)
 admin.site.register(Recipes, RecipesAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Ingredients, IngredientsAdmin)
+admin.site.register(Subscriptions, SubscriptionsAdmin)
+admin.site.register(Favorite, FavoriteAdmin)
+admin.site.register(ShoppingCart, ShoppingCartAdmin)
+admin.site.register(IngredientsRecipe, IngredientsRecipeAdmin)
