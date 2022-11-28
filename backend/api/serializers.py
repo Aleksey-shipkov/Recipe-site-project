@@ -50,7 +50,7 @@ class SubscriptionsListSerializer(serializers.ModelSerializer):
     def get_recipes(self, obj):
         request = self.context['request']
         limit = request.GET.get('recipes_limit')
-        queryset = obj.recipes
+        queryset = obj.recipes.first()
         if limit:
             queryset = queryset[:int(limit)]
         return RecipesUserSerializer(queryset, many=True).data
