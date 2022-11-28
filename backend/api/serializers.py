@@ -3,6 +3,7 @@ import base64
 from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
@@ -50,7 +51,7 @@ class SubscriptionsListSerializer(serializers.ModelSerializer):
     def get_recipes(self, obj):
         request = self.context['request']
         limit = request.GET.get('recipes_limit')
-        queryset = obj.recipes.first()
+        queryset = obj.recipes.all()
         if limit:
             queryset = queryset[:int(limit)]
         return RecipesUserSerializer(queryset, many=True).data
@@ -97,7 +98,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
     def validate(self, data):
         my_view = self.context['view']
         author_id = my_view.kwargs.get('id')
-        author = User.objects.get(id=author_id)
+        author = get_object_or_404(User, id=author_id)
         user = self.context['request'].user
         if Subscriptions.objects.filter(
                 user=user, author=author).exists():
@@ -110,7 +111,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         author_id = instance.author.id
-        author = User.objects.get(id=author_id)
+        author = get_object_or_404(User, id=author_id)
         user = self.instance.user
         serializer = SubscriptionsIdSerializer(author, context={'user': user})
         return serializer.data
@@ -140,7 +141,7 @@ class UserSerializer(UserSerializer):
         context = self.context
         if 'user' in context:
             user_id = context['user']
-            user = User.objects.get(id=user_id)
+            user = get_object_or_404(User, id=user_id)
         elif 'request' in context:
             user = context['request'].user
         if user.is_authenticated:
@@ -202,7 +203,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         my_view = self.context['view']
         recipe_id = my_view.kwargs.get('id')
         current_user = self.context['request'].user
-        recipe = Recipes.objects.get(id=recipe_id)
+        recipe = get_object_or_404(Recipes, id=recipe_id)
         if Recipes.objects.filter(
                 id=recipe_id, author=current_user).exists():
             raise serializers.ValidationError(
@@ -215,7 +216,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         recipe_id = instance.recipe.id
-        recipe = Recipes.objects.get(id=recipe_id)
+        recipe = get_object_or_404(Recipes, id=recipe_id)
         serializer = RecipesUserSerializer(recipe)
         return serializer.data
 
@@ -311,8 +312,8 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             for ingredient in ingredients_data:
                 IngredientsRecipe.objects.create(
                     recipe=new_recipe,
-                    ingredient=Ingredients.objects.get(
-                        id=ingredient.get('id')),
+                    ingredient=get_object_or_404(
+                        Ingredients, id=ingredient.get('id')),
                     amount=ingredient.get('amount'))
         return new_recipe
 
@@ -333,15 +334,15 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             if 'id' in ingredient:
                 IngredientsRecipe.objects.create(
                     recipe_id=instance.id,
-                    ingredient=Ingredients.objects.get(
-                        id=ingredient.get('id')),
+                    ingredient=get_object_or_404(Ingredients,
+                                                 id=ingredient.get('id')),
                     amount=ingredient.get('amount'))
         instance.tags.set(tag_data)
         return instance
 
     def to_representation(self, instance):
         recipe_id = instance.id
-        recipe = Recipes.objects.get(id=recipe_id)
+        recipe = get_object_or_404(Recipes, id=recipe_id)
         serializer = RecipesSerializer(recipe, context=self.context)
         return serializer.data
 
@@ -364,7 +365,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
         my_view = self.context['view']
         recipe_id = my_view.kwargs.get('id')
         current_user = self.context['request'].user
-        recipe = Recipes.objects.get(id=recipe_id)
+        recipe = get_object_or_404(Recipes, id=recipe_id)
         if Favorite.objects.filter(
                 user=current_user, recipe=recipe).exists():
             raise serializers.ValidationError(
@@ -377,6 +378,6 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         recipe_id = instance.recipe.id
-        recipe = Recipes.objects.get(id=recipe_id)
+        recipe = get_object_or_404(Recipes, id=recipe_id)
         serializer = RecipesUserSerializer(recipe)
         return serializer.data
