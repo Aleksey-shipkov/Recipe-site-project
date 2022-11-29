@@ -7,18 +7,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('food', '0001_initial'),
+        ("food", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ingredientsrecipe',
-            name='ingredient',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='in_recipe', to='food.Ingredients'),
+            model_name="ingredientsrecipe",
+            name="ingredient",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="in_recipe",
+                to="food.Ingredients",
+            ),
         ),
         migrations.AlterField(
-            model_name='ingredientsrecipe',
-            name='recipe',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recipe', to='food.Recipes'),
+            model_name="ingredientsrecipe",
+            name="recipe",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="recipe",
+                to="food.Recipes",
+            ),
         ),
     ]

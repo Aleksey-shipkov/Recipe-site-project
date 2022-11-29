@@ -6,16 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('food', '0008_auto_20221127_1226'),
+        ("food", "0008_auto_20221127_1226"),
     ]
 
     operations = [
         migrations.RemoveConstraint(
-            model_name='shoppingcart',
-            name='unique_user_recipe',
+            model_name="shoppingcart",
+            name="unique_user_recipe",
         ),
         migrations.AddConstraint(
-            model_name='shoppingcart',
-            constraint=models.UniqueConstraint(fields=('user', 'recipe'), name='unique_user_recipe_shopping_cart'),
+            model_name="shoppingcart",
+            constraint=models.UniqueConstraint(
+                fields=("user", "recipe"),
+                name="unique_user_recipe_shopping_cart",
+            ),
         ),
     ]

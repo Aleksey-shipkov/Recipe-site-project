@@ -1,29 +1,41 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from food.models import (Favorite, Ingredients, IngredientsRecipe, Recipes,
-                         ShoppingCart, Subscriptions, Tag, User)
+from food.models import (
+    Favorite,
+    Ingredients,
+    IngredientsRecipe,
+    Recipes,
+    ShoppingCart,
+    Subscriptions,
+    Tag,
+    User,
+)
 
 
 class UserCustomAdmin(UserAdmin):
-    list_display = ('email', 'password', 'username', 'first_name', 'last_name')
-    list_filter = ('username', 'email')
+    list_display = ("email", "username", "first_name", "last_name", "password")
+    search_fields = ("username", "email")
 
 
 class SubscriptionsAdmin(admin.ModelAdmin):
-    list_display = ('user', 'author')
+    list_display = ("user", "author")
+    search_fields = ("user__username", "author__username")
 
 
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe')
+    list_display = ("user", "recipe")
+    search_fields = ("user__username", "recipe__name")
 
 
 class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe')
+    list_display = ("user", "recipe")
+    search_fields = ("user__username", "recipe__name")
 
 
 class IngredientsRecipeAdmin(admin.ModelAdmin):
-    list_display = ('ingredient', 'recipe', 'amount')
+    list_display = ("ingredient", "recipe", "amount")
+    search_fields = ("ingredient__name", "recipe__name")
 
 
 class IngRecipesInline(admin.TabularInline):
@@ -33,24 +45,26 @@ class IngRecipesInline(admin.TabularInline):
 
 class RecipesAdmin(admin.ModelAdmin):
     inlines = (IngRecipesInline,)
-    list_display = ('name', 'author', 'count_favorites')
-    list_filter = ('author', 'name', 'tags')
+    list_display = ("name", "author", "count_favorites")
+    list_filter = ("tags",)
+    search_fields = ("author", "name")
 
     def count_favorites(self, obj):
         return obj.favorites.count()
 
     count_favorites.short_description = (
-        'Количество добавлений рецепта в избранное'
+        "Количество добавлений рецепта в избранное"
     )
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
+    list_display = ("name", "slug")
+    search_fields = ("name", "slug")
 
 
 class IngredientsAdmin(admin.ModelAdmin):
-    list_display = ('name', 'measurement_unit')
-    list_filter = ('name',)
+    list_display = ("name", "measurement_unit")
+    search_fields = ("name",)
 
 
 admin.site.register(User, UserCustomAdmin)

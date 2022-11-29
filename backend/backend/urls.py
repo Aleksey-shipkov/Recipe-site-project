@@ -5,11 +5,12 @@ from django.urls import include, path
 from backend import settings
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
+    path("admin/", admin.site.urls),
+    path("api/", include("api.urls")),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(
-        settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+        settings.STATIC_URL, document_root=settings.STATIC_ROOT
+    )
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
