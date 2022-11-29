@@ -28,6 +28,7 @@ from api.serializers import (
     SubscriptionsSerializer,
     TagSerializer,
 )
+from backend.settings import TEXT_FILE_NAME
 from food.models import (
     Favorite,
     Ingredients,
@@ -40,7 +41,6 @@ from food.models import (
 )
 
 CONTENT_TYPE_TEXT = "text/plain; charset=UTF-8"
-TEXT_FILE_NAME = "shopping-cart.txt"
 
 
 class UserViewSet(UserViewSet):

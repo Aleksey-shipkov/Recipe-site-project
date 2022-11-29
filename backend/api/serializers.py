@@ -227,9 +227,9 @@ class IngredientsCreateRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для создания/удаления
     записи о количестве ингридиентов в рецепте."""
 
-    id = serializers.IntegerField(required="True")
+    id = serializers.IntegerField(required=True)
     amount = serializers.IntegerField(
-        required="True", validators=(MinValueValidator(MIN_AMOUNT),)
+        required=True, validators=(MinValueValidator(MIN_AMOUNT),)
     )
 
     class Meta:
