@@ -19,7 +19,7 @@ from food.models import (
     ShoppingCart,
     Subscriptions,
     Tag,
-    User,
+    User
 )
 
 
