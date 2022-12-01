@@ -90,20 +90,21 @@ class Ingredients(models.Model):
 
 class Recipes(models.Model):
     tags = models.ManyToManyField(
-        Tag, verbose_name="Теги", help_text="Укажите теги"
-    )
+        Tag, verbose_name="Теги", help_text="Укажите теги",
+        blank=False)
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="recipes",
         verbose_name="Автор",
         help_text="Укажите автора рецепта",
-    )
+        blank=False)
     ingredients = models.ManyToManyField(
         Ingredients,
         through="IngredientsRecipe",
         verbose_name="Ингредиенты",
         help_text="Укажите ингредиенты",
+        blank=False
     )
     pub_date = models.DateTimeField(
         verbose_name="Дата публикации",
@@ -113,15 +114,18 @@ class Recipes(models.Model):
     name = models.CharField(
         max_length=200,
         verbose_name="Название",
-        help_text="Укажите название"
+        help_text="Укажите название",
+        blank=False
     )
     image = models.ImageField(
         verbose_name="Картинка",
-        help_text="Добавьте картинку"
+        help_text="Добавьте картинку",
+        blank=False
     )
     text = models.TextField(
         verbose_name="Описание",
-        help_text="Добавьте описание"
+        help_text="Добавьте описание",
+        blank=False
     )
     cooking_time = models.PositiveSmallIntegerField(
         validators=(
@@ -134,6 +138,7 @@ class Recipes(models.Model):
         ),
         verbose_name="Время приготовления",
         help_text="Укажите время готовки",
+        blank=False
     )
 
     class Meta:
@@ -158,6 +163,8 @@ class IngredientsRecipe(models.Model):
         related_name="recipe",
         verbose_name="Рецепт",
         help_text="Укажите рецепт",
+        null=False,
+        blank=False
     )
     ingredient = models.ForeignKey(
         Ingredients,
@@ -165,6 +172,8 @@ class IngredientsRecipe(models.Model):
         related_name="in_recipe",
         verbose_name="Ингредиент",
         help_text="Укажите ингредиент",
+        null=False,
+        blank=False
     )
     amount = models.IntegerField(
         validators=(
@@ -177,6 +186,8 @@ class IngredientsRecipe(models.Model):
         ),
         verbose_name="Кол-во",
         help_text="Укажите количество",
+        null=False,
+        blank=False
     )
 
     class Meta:

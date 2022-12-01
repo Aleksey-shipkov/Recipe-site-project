@@ -10,7 +10,7 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.validators import UniqueTogetherValidator
 
-from backend.settings import MIN_TIME, MIN_AMOUNT
+from backend.settings import MIN_TIME, MIN_AMOUNT, MIN_TAG_NUMBER
 from food.models import (
     Favorite,
     Ingredients,
@@ -227,7 +227,9 @@ class IngredientsCreateRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для создания/удаления
     записи о количестве ингридиентов в рецепте."""
 
-    id = serializers.IntegerField(required=True)
+    id = serializers.IntegerField(
+        required=True
+    )
     amount = serializers.IntegerField(
         required=True, validators=(MinValueValidator(MIN_AMOUNT),)
     )
@@ -235,7 +237,7 @@ class IngredientsCreateRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = IngredientsRecipe
         read_only_fields = ("recipe", "ingredient")
-        fields = ("id", "amount")
+        fields = ("id", "amount", "recipe", "ingredient")
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
@@ -357,9 +359,10 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
         read_only=True, default=serializers.CurrentUserDefault()
     )
     tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(), many=True
+        queryset=Tag.objects.all(), many=True, required=True)
+    ingredients = IngredientsCreateRecipeSerializer(
+        many=True, source="recipe", required=True
     )
-    ingredients = IngredientsCreateRecipeSerializer(many=True, source="recipe")
     image = Base64ImageField(required=True)
     cooking_time = serializers.IntegerField(
         validators=(MinValueValidator(MIN_TIME),)
@@ -378,20 +381,17 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        with transaction.atomic():
-            validated_data["author"] = self.context["request"].user
-            ingredients_data = validated_data.pop("recipe")
-            tag_data = validated_data.pop("tags")
-            new_recipe = Recipes.objects.create(**validated_data)
-            new_recipe.tags.set(tag_data)
-            for ingredient in ingredients_data:
-                IngredientsRecipe.objects.create(
-                    recipe=new_recipe,
-                    ingredient=get_object_or_404(
-                        Ingredients, id=ingredient.get("id")
-                    ),
-                    amount=ingredient.get("amount"),
-                )
+        validated_data["author"] = self.context["request"].user
+        ingredients_data = validated_data.pop("recipe")
+        tag_data = validated_data.pop("tags")
+        new_recipe = Recipes.objects.create(**validated_data)
+        new_recipe.tags.set(tag_data)
+        for ingredient in ingredients_data:
+            IngredientsRecipe.objects.create(
+                recipe=new_recipe,
+                ingredient=get_object_or_404(
+                    Ingredients,
+                    id=ingredient.get("id")), amount=ingredient.get("amount"))
         return new_recipe
 
     @transaction.atomic
@@ -406,18 +406,41 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             "cooking_time", instance.cooking_time
         )
         instance.save()
-        IngredientsRecipe.objects.filter(recipe__id=instance.id).delete()
+        IngredientsRecipe.objects.filter(
+            recipe_id=instance.id).delete()
         for ingredient in ingredients_data:
-            if "id" in ingredient:
-                IngredientsRecipe.objects.create(
-                    recipe_id=instance.id,
-                    ingredient=get_object_or_404(
-                        Ingredients, id=ingredient.get("id")
-                    ),
-                    amount=ingredient.get("amount"),
-                )
+            IngredientsRecipe.objects.create(
+                recipe_id=instance.id,
+                ingredient=get_object_or_404(
+                    Ingredients,
+                    id=ingredient.get("id")), amount=ingredient.get("amount"),)
         instance.tags.set(tag_data)
         return instance
+
+    def validate(self, data):
+        if not data.get("tags") or len(data.get("tags")) == 0:
+            raise serializers.ValidationError(
+                f"Должен быть хотя бы {MIN_TAG_NUMBER} тег"
+            )
+        if not data.get("recipe"):
+            raise serializers.ValidationError(
+                f"Должен быть хотя бы {MIN_AMOUNT} ингредиент")
+        if data.get("recipe"):
+            ingredients_data = data.get("recipe")
+            ing_list = []
+            for ingredient in ingredients_data:
+                if "id" not in ingredient:
+                    raise serializers.ValidationError(
+                        "Заполните поле id ингредиента")
+                if "amount" not in ingredient:
+                    raise serializers.ValidationError(
+                        "Заполните поле amount ингредиента")
+                ing_id = ingredient.get("id")
+                if ing_id in ing_list:
+                    raise serializers.ValidationError(
+                        "Нельзя добавлять одинаковые ингредиенты")
+                ing_list.append(ing_id)
+        return data
 
     def to_representation(self, instance):
         recipe_id = instance.id

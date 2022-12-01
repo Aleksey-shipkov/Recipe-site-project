@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ["*"]
 
 MIN_TIME = 1
 MIN_AMOUNT = 1
+MIN_TAG_NUMBER = 1
 
 # Application definition
 
@@ -149,6 +150,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 MEDIA_URL = "/mediafiles/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (

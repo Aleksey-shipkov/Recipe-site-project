@@ -25,17 +25,20 @@ class SubscriptionsAdmin(admin.ModelAdmin):
 
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ("user", "recipe")
+    list_filter = ("recipe__tags",)
     search_fields = ("user__username", "recipe__name")
 
 
 class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = ("user", "recipe")
+    list_filter = ("recipe__tags",)
     search_fields = ("user__username", "recipe__name")
 
 
 class IngredientsRecipeAdmin(admin.ModelAdmin):
     list_display = ("ingredient", "recipe", "amount")
     search_fields = ("ingredient__name", "recipe__name")
+    list_filter = ("recipe__tags",)
 
 
 class IngRecipesInline(admin.TabularInline):
@@ -47,7 +50,7 @@ class RecipesAdmin(admin.ModelAdmin):
     inlines = (IngRecipesInline,)
     list_display = ("name", "author", "count_favorites")
     list_filter = ("tags",)
-    search_fields = ("author", "name")
+    search_fields = ("author__username", "name")
 
     def count_favorites(self, obj):
         return obj.favorites.count()
@@ -58,12 +61,13 @@ class RecipesAdmin(admin.ModelAdmin):
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug")
+    list_display = ('id', "name", "slug")
     search_fields = ("name", "slug")
 
 
 class IngredientsAdmin(admin.ModelAdmin):
     list_display = ("name", "measurement_unit")
+    list_filter = ("measurement_unit",)
     search_fields = ("name",)
 
 
