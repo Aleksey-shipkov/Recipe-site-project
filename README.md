@@ -1,4 +1,4 @@
-# praktikum_new_diplom
+#  Recipe-site-project
 
 ### Проект "Продуктовый помощник"
 
